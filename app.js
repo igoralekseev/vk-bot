@@ -60,6 +60,10 @@ fs.readFile(tokenFile, function (err, data) {
 
 
 var setToken = function (t, setVk) {
+  if (!t.expires) {
+    t.expires = Date.now() + 60 * 60 * 1000
+  }
+
   token = t
   if (setVk) vk.setToken({ token: token.value });
   fs.writeFile(tokenFile, JSON.stringify(token), function (err) {
@@ -75,9 +79,7 @@ var last_message_id = null;
 
 var authFile = 'auth.json'
 var authFromUrl = function (resultUrl) {
-    console.log('auth href:', resultUrl)
-
-    if (!resultUrl.match(/access_token=/)) return
+    if (!resultUrl.match(/access_token=/)) return console.log('auth href:', resultUrl)
 
     result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
       return i.split('=')
@@ -91,9 +93,7 @@ var authFromUrl = function (resultUrl) {
       data.expires = new Date(Date.now() + (parseInt() - 5) * 1000).getTime()
     } else if (token.expires) {
       data.expires = token.expires
-    } else {
-      data.expires = Date.now() + 60 * 60 * 1000
-    }
+    } 
 
     setToken(data, true)
 }
@@ -158,10 +158,17 @@ var commands = {
 
   "token (.*)": function (match) {
     setToken({ 
-      value: match[1],  
-      expires: new Date(Date.now() + (parseInt(result.expires_in) - 60 * 5) * 1000).getTime()
+      value: match[1]
     }, true);
   },
+
+
+  "browser ([^ ]*) ?(.*)?": function (match) {
+    var command = match[1]
+    var params = match[2]
+
+    browser
+  })
 
     
   status: function () {
@@ -326,6 +333,8 @@ vk.on('done:messages.get', function(data) {
     }
     return console.log(data.error)
   }
+
+
 
   var messages = [];
   if (data.response && data.response.items) messages = data.response.items
