@@ -11,8 +11,9 @@ var VK = require('vksdk')
 var _ = require('lodash')
 var request = require('request')
 var Q = require('q')
-var Browser = require("zombie");
 
+var Browser = require("zombie");
+var browser = new Browser()
 
 url.extend = function(url1, url2) {
   if (typeof url1 === 'string') url1 = url.parse(url1)
@@ -116,9 +117,7 @@ var commands = {
     }
     
 
-    var browser = new Browser()
     browser.visit(_url, function () {
-
       browser.
         fill("email", auth.email).
         fill("pass", auth.password).
@@ -311,7 +310,7 @@ var knownCommands = _(phrases).pluck('pattern').map(function(i) {
 vk.on('done:messages.get', function(data) {
   if (data.error) {
     if (data.error.redirect_uri) {
-      var browser = new Browser()
+      
       browser.visit(data.error.redirect_uri, function () {
           console.log('redirect', browser.location.href)
       })
