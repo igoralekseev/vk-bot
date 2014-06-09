@@ -128,7 +128,7 @@ var commands = {
             return i.split('=')
           }))
 
-          console.log('auth result', result)
+          console.log('auth result:', result)
 
           setToken({
             value: result.access_token,
@@ -310,9 +310,10 @@ vk.on('done:messages.get', function(data) {
     last_message_id = msg.id
     if (!msg.read_state) {
       
-      console.log(msg)
+      // console.log(msg)
 
       var unknown = true
+      var isChat = msg.chat_id !== undefined
 
       phrases.forEach(function(p) {
         if (msg.body.match(p.pattern)) {
@@ -333,7 +334,7 @@ vk.on('done:messages.get', function(data) {
               message: value
             }
 
-            if (msg.chat_id !== undefined) {
+            if (isChat) {
               options.chat_id = msg.chat_id
             } else {
               options.user_id = msg.user_id
@@ -345,10 +346,10 @@ vk.on('done:messages.get', function(data) {
       })
 
 
-      if (unknown && msg.chat_id === undefined) {
+      if (unknown && !isChat) {
         vk.request('messages.send', { 
           user_id: msg.user_id, 
-          message: 'Я не понял. Я робот. Я понимаю только: ' + knownCommands + '. https://vk.com/wall84251988_15 /' + Date.now().toString().substr(-3,3)
+          message: 'Я не понял. Я робот. Я понимаю только: ' + knownCommands + '. https://vk.com/wall84251988_15 [' + Date.now().toString().substr(-3,3) + ']'
         })
       }
     }
