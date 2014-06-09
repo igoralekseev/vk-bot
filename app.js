@@ -85,10 +85,17 @@ var authFromUrl = function (resultUrl) {
 
     console.log('auth result:', result)
 
-    setToken({
-      value: result.access_token,
-      expires: new Date(Date.now() + (parseInt(result.expires_in) - 5) * 1000).getTime()
-    }, true)
+    var data = { value: result.access_token }
+
+    if (result.expires_in) {
+      data.expires = new Date(Date.now() + (parseInt() - 5) * 1000).getTime()
+    } else if (token.expires) {
+      data.expires = token.expires
+    } else {
+      data.expires = Date.now() + 60 * 60 * 1000
+    }
+
+    setToken(data, true)
 }
 
 
