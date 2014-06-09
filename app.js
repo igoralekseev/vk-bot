@@ -122,7 +122,7 @@ var commands = {
       browser.
         fill("email", auth.email).
         fill("pass", auth.password).
-        pressButton("Войти", function() {
+        pressButton('input[type="submit"]', function() {
 
           result = _.object(browser.location.href.split('#')[1].split('&').map(function (i) {
             return i.split('=')
