@@ -139,7 +139,7 @@ var commands = {
           setToken({
             value: result.access_token,
             expires: new Date(Date.now() + (parseInt(result.expires_in) - 5) * 1000).getTime()
-          })
+          }, true)
         })
     });
 
@@ -150,7 +150,10 @@ var commands = {
   },
 
   "token (.*)": function (match) {
-    setToken({ value: match[1] }, true);
+    setToken({ 
+      value: match[1],  
+      new Date(Date.now() + (parseInt(result.expires_in) - 60) * 1000).getTime()
+    }, true);
   },
 
     
