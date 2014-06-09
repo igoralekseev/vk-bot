@@ -124,9 +124,13 @@ var commands = {
         fill("pass", auth.password).
         pressButton('input[type="submit"]', function() {
 
-          console.log('auth href:', browser.location.href)
+          resultUrl = browser.location.href
 
-          result = _.object(browser.location.href.split('#')[1].split('&').map(function (i) {
+          console.log('auth href:', resultUrl)
+
+          if (!resultUrl.match(/access_token=/)) return
+
+          result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
             return i.split('=')
           }))
 
