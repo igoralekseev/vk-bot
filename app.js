@@ -309,7 +309,15 @@ var knownCommands = _(phrases).pluck('pattern').map(function(i) {
 
 
 vk.on('done:messages.get', function(data) {
-  if (data.error) return console.log(data.error)
+  if (data.error) {
+    if (data.error.redirect_uri) {
+      var browser = new Browser()
+      browser.visit(data.error.redirect_uri, function () {
+          console.log('redirect', browser.location.href)
+      })
+    }
+    return console.log(data.error)
+  }
 
   var messages = [];
   if (data.response && data.response.items) messages = data.response.items
