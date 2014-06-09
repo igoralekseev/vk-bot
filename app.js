@@ -152,7 +152,7 @@ var commands = {
   "token (.*)": function (match) {
     setToken({ 
       value: match[1],  
-      new Date(Date.now() + (parseInt(result.expires_in) - 60) * 1000).getTime()
+      expires: new Date(Date.now() + (parseInt(result.expires_in) - 60 * 5) * 1000).getTime()
     }, true);
   },
 
