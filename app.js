@@ -74,6 +74,23 @@ var listening = null;
 var last_message_id = null;
 
 var authFile = 'auth.json'
+var authFromUrl = function (resultUrl) {
+    console.log('auth href:', resultUrl)
+
+    if (!resultUrl.match(/access_token=/)) return
+
+    result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
+      return i.split('=')
+    }))
+
+    console.log('auth result:', result)
+
+    setToken({
+      value: result.access_token,
+      expires: new Date(Date.now() + (parseInt(result.expires_in) - 5) * 1000).getTime()
+    }, true)
+}
+
 
 var commands = {
   auth_old: function () {
@@ -122,23 +139,7 @@ var commands = {
         fill("email", auth.email).
         fill("pass", auth.password).
         pressButton('input[type="submit"]', function() {
-
-          resultUrl = browser.location.href
-
-          console.log('auth href:', resultUrl)
-
-          if (!resultUrl.match(/access_token=/)) return
-
-          result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
-            return i.split('=')
-          }))
-
-          console.log('auth result:', result)
-
-          setToken({
-            value: result.access_token,
-            expires: new Date(Date.now() + (parseInt(result.expires_in) - 5) * 1000).getTime()
-          }, true)
+          authFromUrl(browser.location.href)
         })
     });
 
@@ -313,6 +314,7 @@ vk.on('done:messages.get', function(data) {
       
       browser.visit(data.error.redirect_uri, function () {
           console.log('redirect', browser.location.href)
+          authFromUrl(browser.location.href)
       })
     }
     return console.log(data.error)
