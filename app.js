@@ -166,9 +166,9 @@ var commands = {
   "browser ([^ ]*) ?(.*)?": function (match) {
     var command = match[1]
     var params = match[2]
-
+    //
     browser
-  })
+  },
 
     
   status: function () {
