@@ -3,7 +3,6 @@ var exec = require('child_process').exec
 var fs = require('fs')
 var url = require('url')
 
-
 var menu = require('./menu')
 var textCase = require('./textcase')
 
@@ -22,12 +21,21 @@ url.extend = function(url1, url2) {
 }
 
 
+
+var options = JSON.parse(fs.readFileSync('options.json').toString())
+
+
+if (options.proxy) {
+  request = request.defaults({ proxy: options.proxy })  
+}
+
+
 console.log('vk-bot> initializing...')
 
 
 var vk = new VK({
-  appID: '4401254',
-  appSecret: 'QUCh2eZnUDbgPEQBVvBA',
+  appID: options.vk_app_id,
+  appSecret: options.vk_app_secret,
   mode: 'oauth'
 });
 
@@ -333,7 +341,6 @@ vk.on('done:messages.get', function(data) {
     }
     return console.log(data.error)
   }
-
 
 
   var messages = [];
