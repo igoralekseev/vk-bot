@@ -1,5 +1,5 @@
 var fs = require('fs')
-var request = require('request')
+var without_proxy_request = require('request')
 var http = require('http');
 var https = require('https');
 
@@ -18,7 +18,7 @@ var ip = 'http://curlmyip.com'
 
 
 // request = request.defaults({'proxy':'http://213.85.92.10'})
-request = request.defaults({'proxy': options.proxy })
+request = without_proxy_request.defaults({'proxy': options.proxy })
 request(ip, function (error, response, body) {
 	console.log(body, error)
 })
@@ -56,7 +56,8 @@ test_vk = function(_method, _params, token) {
     		path: 'https://api.vk.com/method/' + _method + '?' + 'access_token=' + token
 		}
 
-
+		// /method/ + _method
+		// query
 
         for(var key in _params) {
             if( key === "message" ) {
@@ -82,12 +83,23 @@ test_vk = function(_method, _params, token) {
         });
     };
 
+test_vk2 = function(_method, _params, token) { 
+
+	var url = 'https://api.vk.com/method/' + _method  + '?' + 'access_token=' + token
+	for (var key in _params) {
+        options.path += ('&' + key + '=' + encodeURIComponent(_params[key]));
+    }
+
+	request({ url: url }, function (error, response, body) {
+		console.log('test_vk2', body, error)
+	});
+}
 
 
 
 var token = JSON.parse(fs.readFileSync('token.json').toString())
 
-test_vk('messages.get', { count: 20, v: '5.21' }, token.value);
+test_vk2('messages.get', { count: 20, v: '5.21' }, token.value);
 
 
 
