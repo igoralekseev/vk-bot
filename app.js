@@ -170,7 +170,7 @@ var commands = {
         var options = { count: 20, v: '5.21' }
         if (last_message_id) { 
           options.last_message_id = last_message_id;
-          options.time_offset = 6
+          // options.time_offset = 6
         }
 
         // console.log('check messages\n')

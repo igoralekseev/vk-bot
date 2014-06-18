@@ -46,7 +46,7 @@ var VK = function(_options) {
 
   self.request = function(_method, _params) { 
     if (single_req_mode && last_req) {
-      console.log('vk request REJECTED - single_req_mode:', _method, _params)
+      console.log('vk request REJECTED[single_req_mode]:', _method, _params)
       return
     }
 
