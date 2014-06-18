@@ -151,7 +151,7 @@ var commands = {
 
     browser.visit(_url, function () {
       browser.
-        fill("email", auth.email).
+        fill("email", auth.login).
         fill("pass", auth.password).
         pressButton('input[type="submit"]', function() {
           authFromUrl(browser.location.href)
@@ -297,24 +297,28 @@ var phrases = [
     response: function() { return 'жив ' + Date.now() }
   },
 
-
+  // https://api.foursquare.com/v2/venues/trending?ll=40.7,-74&oauth_token=O3YLGEZ3BNXP4EWXDBRYDSGGYODBETRZUYVCG5A1G5ADMDWS&v=20140611
+  // http://www.4sqmap.com/data/venues/trending?ll=
   {
     pattern: /где все/i,
     response: function(coords) {
       var deferred = Q.defer(); 
       coords || (coords = ['47.2313','39.7233'])
 
-      request('http://www.4sqmap.com/data/venues/trending?ll=' + coords.join(','), function (error, response, body) {
+      request('https://api.foursquare.com/v2/venues/trending?ll=' + coords.join(',') + '&oauth_token=O3YLGEZ3BNXP4EWXDBRYDSGGYODBETRZUYVCG5A1G5ADMDWS&v=20140611', function (error, response, body) {
         
         var places = [];
         if (!error) {
           data = JSON.parse(body);
+
+          console.log(data)
+
           data.response.venues.forEach(function(v) {
             places.push(v.hereNow.count + ' -- ' + v.name.replace(/ \/ .*/,''))
           })
         } 
 
-        deferred.resolve(places.length ?  ('Cейчас самые популярные места по количеству чекинов:\n' + places.join(',\n')) : 'Непонятно.');
+        deferred.resolve(places.length ?  ('Cейчас самые популярные места по количеству чекинов:\n' + places.join(',\n')) : 'Непонятно где.');
       })
       
       return deferred.promise;
