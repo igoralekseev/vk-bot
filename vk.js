@@ -63,19 +63,18 @@ var VK = function(_options) {
       last_req[_method] = Date.now()
     }
 
-    request({ url: url, json: true }, function (error, response, body) {
+    request({ url: url, json: true, timeout: last_req_time }, function (error, response, body) {
 
       if (last_req_mode) {
         last_req[_method] = false
       }
 
-      // if (error) {
-        // console.log('vk error:', _method, body, error);
-      // }
-
-
-      console.log('vk:', _method, body, error)      
-      self.emit('done:' + _method, body, error);
+      if (error) {
+        console.log('vk error:', _method, body, error);
+      } else {
+        console.log('vk:', _method, body, error)      
+        self.emit('done:' + _method, body, error);  
+      }      
     });
   }
 
