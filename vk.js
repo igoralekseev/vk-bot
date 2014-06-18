@@ -13,7 +13,7 @@ url.extend = function(url1, url2) {
 
 
 var single_req_mode = true;
-var last_req = null;
+var last_req = {};
 
 var VK = function(_options) {
   var self = this
@@ -45,7 +45,7 @@ var VK = function(_options) {
   
 
   self.request = function(_method, _params) { 
-    if (single_req_mode && last_req) {
+    if (single_req_mode && last_req[_method]) {
       console.log('vk request REJECTED[single_req_mode]:', _method, _params)
       return
     }
@@ -59,13 +59,13 @@ var VK = function(_options) {
     console.log('vk request:', _method, _params)
 
     if (single_req_mode) {
-      last_req = true
+      last_req[_method] = true
     }
 
     request({ url: url, json: true }, function (error, response, body) {
 
       if (single_req_mode) {
-        last_req = false
+        last_req[_method] = false
       }
 
       // if (error) {
