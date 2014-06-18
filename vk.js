@@ -12,7 +12,8 @@ url.extend = function(url1, url2) {
 }
 
 
-var single_req_mode = true;
+var last_req_mode = true;
+var last_req_time = 30 * 1000;
 var last_req = {};
 
 var VK = function(_options) {
@@ -45,7 +46,7 @@ var VK = function(_options) {
   
 
   self.request = function(_method, _params) { 
-    if (single_req_mode && last_req[_method]) {
+    if (last_req_mode && last_req[_method] && Date.now() - last_req[_method] < last_req_time) {
       console.log('vk request REJECTED[single_req_mode]:', _method, _params)
       return
     }
@@ -58,13 +59,13 @@ var VK = function(_options) {
 
     console.log('vk request:', _method, _params)
 
-    if (single_req_mode) {
-      last_req[_method] = true
+    if (last_req_mode) {
+      last_req[_method] = Date.now()
     }
 
     request({ url: url, json: true }, function (error, response, body) {
 
-      if (single_req_mode) {
+      if (last_req_mode) {
         last_req[_method] = false
       }
 
