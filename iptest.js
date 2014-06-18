@@ -1,12 +1,19 @@
 var request = require('request')
+var http = require('http');
+var https = require('https');
+
+
+
+
+var options = JSON.parse(fs.readFileSync('options.json').toString())
 
 // var proxy = { url: 'http://213.85.92.10', port: 80 }
 var proxy = {  url: '37.79.254.147', port: 3128 }
 
-var options = JSON.parse(fs.readFileSync('options.json').toString())
-
-
 var ip = 'http://curlmyip.com'
+
+
+
 
 
 // request = request.defaults({'proxy':'http://213.85.92.10'})
@@ -18,7 +25,6 @@ request(ip, function (error, response, body) {
 
 
 
-var http = require('http');
 
 http.get({
     host: options.proxy.split(':')[0],
@@ -49,6 +55,8 @@ test_vk = function(_method, _params, token) {
     		path: 'https://api.vk.com/method/' + _method + '?' + 'access_token=' + token
 		}
 
+
+
         for(var key in _params) {
             if( key === "message" ) {
                 options.path += ('&' + key + '=' + encodeURIComponent(_params[key]));
@@ -75,7 +83,7 @@ test_vk = function(_method, _params, token) {
 
 
 
-var options = JSON.parse(fs.readFileSync('options.json').toString())
+
 var token = JSON.parse(fs.readFileSync('token.json').toString())
 
 test_vk('messages.get', { count: 20, v: '5.21' }, token.value);
