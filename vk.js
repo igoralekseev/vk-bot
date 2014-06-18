@@ -49,12 +49,12 @@ var VK = function(_options) {
       url += ('&' + key + '=' + encodeURIComponent(_params[key]))
     }
 
-    // console.log('vk request:', _method, url, self.token)
+    console.log('vk request:', _method, url, self.token)
     request({ url: url, json: true }, function (error, response, body) {
-      if (error) {
-        console.log('vk error:', _method, body, error);
-      }
-      // console.log('vk:', _method, body, error)      
+      // if (error) {
+        // console.log('vk error:', _method, body, error);
+      // }
+      console.log('vk:', _method, body, error)      
       self.emit('done:' + _method, body, error);
     });
   }
