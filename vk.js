@@ -12,6 +12,9 @@ url.extend = function(url1, url2) {
 }
 
 
+var single_req_mode = true;
+var last_req = null;
+
 var VK = function(_options) {
   var self = this
   self.options = _options
@@ -42,6 +45,10 @@ var VK = function(_options) {
   
 
   self.request = function(_method, _params) { 
+    if (single_req_mode && last_req) {
+      console.log('vk request REJECTED - single_req_mode:', _method, _params)
+      return
+    }
 
     var url = self._apiUrl + _method  + '?' + 'access_token=' + self.token
 
@@ -49,11 +56,23 @@ var VK = function(_options) {
       url += ('&' + key + '=' + encodeURIComponent(_params[key]))
     }
 
-    console.log('vk request:', _method, url, self.token)
+    console.log('vk request:', _method, _params)
+
+    if (single_req_mode) {
+      last_req = true
+    }
+
     request({ url: url, json: true }, function (error, response, body) {
+
+      if (single_req_mode) {
+        last_req = false
+      }
+
       // if (error) {
         // console.log('vk error:', _method, body, error);
       // }
+
+
       console.log('vk:', _method, body, error)      
       self.emit('done:' + _method, body, error);
     });
