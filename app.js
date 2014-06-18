@@ -59,7 +59,7 @@ fs.readFile(tokenFile, function (err, data) {
 
 var setToken = function (t, setVk) {
   if (!t.expires) {
-    t.expires = Date.now() + 60 * 60 * 1000
+    t.expires = Date.now() + 20 * 60 * 60 * 1000
   }
 
   token = t
