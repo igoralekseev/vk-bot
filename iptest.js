@@ -1,3 +1,4 @@
+var fs = require('fs')
 var request = require('request')
 var http = require('http');
 var https = require('https');
