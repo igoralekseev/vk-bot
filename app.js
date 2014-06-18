@@ -6,7 +6,8 @@ var url = require('url')
 var menu = require('./menu')
 var textCase = require('./textcase')
 
-var VK = require('vksdk')
+var VK = require('./vk')
+
 var _ = require('lodash')
 var request = require('request')
 var Q = require('q')
@@ -14,20 +15,15 @@ var Q = require('q')
 var Browser = require("zombie");
 var browser = new Browser()
 
-url.extend = function(url1, url2) {
-  if (typeof url1 === 'string') url1 = url.parse(url1)
-  if (typeof url2 === 'string') url2 = url.parse(url2)
-  return url.format(_.extend(url1, url2));
-}
 
 
 
 var options = JSON.parse(fs.readFileSync('options.json').toString())
 
 
-if (options.proxy) {
-  request = request.defaults({ proxy: options.proxy })  
-}
+// if (options.proxy) {
+  // request = request.defaults({ proxy: options.proxy })  
+// }
 
 
 console.log('vk-bot> initializing...')
@@ -35,12 +31,11 @@ console.log('vk-bot> initializing...')
 
 var vk = new VK({
   appID: options.vk_app_id,
-  appSecret: options.vk_app_secret,
-  mode: 'oauth'
+  // appSecret: options.vk_app_secret,
+  // mode: 'oauth'
+  
+  proxy: options.proxy
 });
-
-vk._authorizeUrl = 'https://oauth.vk.com/authorize'
-vk._blankUrl = 'https://oauth.vk.com/blank.html'
 
 
 
@@ -109,17 +104,9 @@ var authFromUrl = function (resultUrl) {
 
 var commands = {
   auth_old: function () {
-    var _url = url.extend(vk._authorizeUrl, { 
-      query: { 
-        client_id: vk.options.appID, 
-        scope: 'messages,photos',
-        redirect_uri: vk._blankUrl, 
-        response_type: 'token',
-        display: 'mobile',
-        v: '5.21' 
-      }
-    })
     
+    
+    var _url = vk.authUrl('messages,photos')
 
     // exec('open ' + _url)
     exec('echo "'+ _url +'" | pbcopy' )
@@ -130,17 +117,8 @@ var commands = {
 
 
   auth: function () {
-    var _url = url.extend(vk._authorizeUrl, { 
-      query: { 
-        client_id: vk.options.appID, 
-        scope: 'messages,photos',
-        redirect_uri: vk._blankUrl, 
-        response_type: 'token',
-        display: 'mobile',
-        v: '5.21' 
-      }
-    })
-
+    
+    var _url = vk.authUrl('messages,photos')
 
     try {
       var auth = JSON.parse(fs.readFileSync(authFile).toString())
@@ -161,7 +139,7 @@ var commands = {
   },
 
   "code (.*)": function (match) {
-    vk.setToken({ code: match[1] });
+    // vk.setToken({ code: match[1] });
   },
 
   "token (.*)": function (match) {

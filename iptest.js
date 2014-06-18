@@ -10,7 +10,7 @@ var options = JSON.parse(fs.readFileSync('options.json').toString())
 
 // var proxy = { url: 'http://213.85.92.10', port: 80 }
 var proxy = {  url: '37.79.254.147', port: 3128 }
-
+//var proxy = { url: options.proxy.split(':')[0], port: options.proxy.split(':')[1] }
 var ip = 'http://curlmyip.com'
 
 
@@ -18,7 +18,7 @@ var ip = 'http://curlmyip.com'
 
 
 // request = request.defaults({'proxy':'http://213.85.92.10'})
-request = without_proxy_request.defaults({'proxy': options.proxy })
+request = without_proxy_request.defaults({'proxy': 'http://' + proxy.url + ':' + proxy.port })
 request(ip, function (error, response, body) {
 	console.log(body, error)
 })
@@ -27,18 +27,24 @@ request(ip, function (error, response, body) {
 
 
 
-http.get({
+
+
+var http_options = 
+
+http_options = {
     host: options.proxy.split(':')[0],
     port: options.proxy.split(':')[1],
     path: ip
-}, function (response) {
+}
+
+http_callback = function (response) {
     // console.log (response);
     response.on('data', function (chunk) {
     	console.log('BODY: ' + chunk);
   	});
-});
+}
 
-
+//http.get(http_options, http_callback)
 
 test_vk = function(_method, _params, token) {
 
@@ -90,8 +96,8 @@ test_vk2 = function(_method, _params, token) {
         options.path += ('&' + key + '=' + encodeURIComponent(_params[key]));
     }
 
-	request({ url: url }, function (error, response, body) {
-		console.log('test_vk2', body, error)
+	request({ url: url  }, function (error, response, body) {
+		console.log('vk2:', _method, body, error)
 	});
 }
 
@@ -100,9 +106,7 @@ test_vk2 = function(_method, _params, token) {
 var token = JSON.parse(fs.readFileSync('token.json').toString())
 
 test_vk2('messages.get', { count: 20, v: '5.21' }, token.value);
-
-
-
+test_vk2('users.get', { v: '5.21' }, token.value);
 
 
 
