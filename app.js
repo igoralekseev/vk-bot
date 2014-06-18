@@ -13,31 +13,26 @@ var request = require('request')
 var Q = require('q')
 
 var Browser = require("zombie");
-var browser = new Browser()
 
 
-
-
-var options = JSON.parse(fs.readFileSync('options.json').toString())
-
-
-// if (options.proxy) {
-  // request = request.defaults({ proxy: options.proxy })  
-// }
 
 
 console.log('vk-bot> initializing...')
 
 
+
+var options = JSON.parse(fs.readFileSync('options.json').toString())
+
 var vk = new VK({
   appID: options.vk_app_id,
   // appSecret: options.vk_app_secret,
   // mode: 'oauth'
-  
   proxy: options.proxy
 });
 
-
+var browser = new Browser({ 
+  proxy: options.proxy 
+})
 
 
 var tokenFile = 'token.json'
