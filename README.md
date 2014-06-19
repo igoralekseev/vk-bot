@@ -6,7 +6,6 @@ vk bot
 
 зависимости
 -----
-* vksdk
 * lodash
 * request
 * q

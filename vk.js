@@ -13,6 +13,7 @@ url.extend = function(url1, url2) {
 
 
 var last_req_mode = true;
+var last_req_mode = false;
 var last_req_time = 30 * 1000;
 var last_req = {};
 
