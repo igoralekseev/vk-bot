@@ -15,8 +15,8 @@ var Browser = require("zombie");
 console.log('vk-bot> initializing...')
 
 
-
 var options = JSON.parse(fs.readFileSync('options.json').toString())
+
 
 var vk = new VK({
   appID: options.vk_app_id,
@@ -118,12 +118,19 @@ var commands = {
     
 
     browser.visit(_url, function () {
-      browser.
-        fill("email", auth.login).
-        fill("pass", auth.password).
-        pressButton('input[type="submit"]', function() {
-          authFromUrl(browser.location.href)
-        })
+
+      try { 
+        browser.
+          fill("email", auth.login).
+          fill("pass", auth.password).
+          pressButton('input[type="submit"]', function() {
+            authFromUrl(browser.location.href)
+          })
+      } catch (e) {
+        console.log('ZOMBIE ERROR', e)
+      }
+
+
     });
 
   },
