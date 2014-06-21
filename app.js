@@ -181,7 +181,7 @@ var commands = {
         // console.log('check messages\n')
         vk.request('messages.get', options);
         
-      }, 5000)
+      }, 10 * 1000)
     } else {
       clearInterval(listening);
       listening = null;  
