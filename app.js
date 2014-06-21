@@ -15,7 +15,8 @@ var Browser = require("zombie");
 console.log('vk-bot> initializing...')
 
 
-var options = JSON.parse(fs.readFileSync('options.json').toString())
+
+var options = JSON.parse(fs.readFileSync(__dirname + '/options.json').toString())
 
 
 var vk = new VK({
@@ -30,7 +31,7 @@ var browser = new Browser({
 })
 
 
-var tokenFile = 'token.json'
+var tokenFile = __dirname + '/token.json'
 var token = null 
 
 // vk.on('tokenByCodeReady', function() {
