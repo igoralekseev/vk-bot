@@ -12,6 +12,10 @@ url.extend = function(url1, url2) {
 }
 
 
+
+var production = (process.env.NODE_ENV === 'production')
+
+
 var last_req_mode = true;
 var last_req_mode = false;
 var last_req_time = 30 * 1000;
@@ -48,7 +52,7 @@ var VK = function(_options) {
 
   self.request = function(_method, _params) { 
     if (last_req_mode && last_req[_method] && Date.now() - last_req[_method] < last_req_time) {
-      console.log('vk request REJECTED[single_req_mode]:', _method, _params)
+      !production && console.log('vk request REJECTED[single_req_mode]:', _method, _params)
       return
     }
 
@@ -58,7 +62,7 @@ var VK = function(_options) {
       url += ('&' + key + '=' + encodeURIComponent(_params[key]))
     }
 
-    console.log('vk request:', _method, _params)
+    !production && console.log('vk request:', _method, _params)
 
     if (last_req_mode) {
       last_req[_method] = Date.now()
@@ -73,7 +77,7 @@ var VK = function(_options) {
       if (error) {
         console.log('vk error:', _method, body, error);
       } else {
-        console.log('vk:', _method, body, error)      
+        !production && console.log('vk:', _method, body, error)      
         self.emit('done:' + _method, body, error);  
       }      
     });

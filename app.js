@@ -11,8 +11,9 @@ var Q = require('q')
 var Browser = require("zombie");
 
 
+var production = (process.env.NODE_ENV === 'production')
 
-console.log('vk-bot> initializing...', 'NODE_ENV:',process.env.NODE_ENV)
+console.log('vk-bot> initializing...', 'NODE_ENV:', process.env.NODE_ENV)
 
 
 
@@ -178,7 +179,6 @@ var commands = {
           // options.time_offset = 6
         }
 
-        // console.log('check messages\n')
         vk.request('messages.get', options);
         
       }, 10 * 1000)
@@ -207,7 +207,7 @@ vk.on('done:messages.get', function(data) {
   if (data.error) {
     if (data.error.redirect_uri) {
       browser.visit(data.error.redirect_uri, function () {
-          console.log('redirect', browser.location.href)
+          !production && console.log('redirect', browser.location.href)
           authFromUrl(browser.location.href)
       })
     }
@@ -218,7 +218,7 @@ vk.on('done:messages.get', function(data) {
 
   var messages = [];
   if (data.response && data.response.items) messages = data.response.items
-  if (messages.length) console.log('\nmessages.get ', messages.length)
+  if (messages.length) !production && console.log('\nmessages.get ', messages.length)
 
   messages.forEach(function(msg) {
     last_message_id = msg.id
@@ -231,7 +231,7 @@ vk.on('done:messages.get', function(data) {
 
       phrases.forEach(function(p) {
         if (msg.body.match(p.pattern)) {
-          console.log('message:', msg.body)
+          !production && console.log('message:', msg.body)
           unknown = false
 
           var coords = null;
@@ -242,7 +242,7 @@ vk.on('done:messages.get', function(data) {
           Q.when(p.response(coords), function (value) {
             value = value.slice(0, 300) + '...'
 
-            console.log('response: (length:' + value.length + ') ', value)      
+            !production && console.log('response: (length:' + value.length + ') ', value)      
 
             var options = { 
               message: value
@@ -271,7 +271,7 @@ vk.on('done:messages.get', function(data) {
 });
 
 vk.on('done:messages.send', function(data) {
-  console.log('done:messages.send', data)
+  !production && console.log('done:messages.send', data)
 })
 
 
@@ -290,7 +290,7 @@ setTimeout(function() {
 }, 500)
 
 
-if (process.env.NODE_ENV != 'production') {
+if (!production) {
   var m = menu('vk-bot> ', commands)  
 }
 
