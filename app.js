@@ -12,7 +12,7 @@ var Browser = require("zombie");
 
 
 
-console.log('vk-bot> initializing...')
+console.log('vk-bot> initializing...', 'NODE_ENV:',process.env.NODE_ENV)
 
 
 
@@ -46,7 +46,6 @@ var token = null
 fs.readFile(tokenFile, function (err, data) {
   if (err) {
     console.log('ERROR: no token file, need to authorize')
-    m.prompt()
   } else {
     setToken(JSON.parse(data.toString()), true)
   }
@@ -287,12 +286,15 @@ setTimeout(function() {
 
   commands.status()  
   console.log('\n')
-  m.prompt()
 
 }, 500)
 
 
-var m = menu('vk-bot> ', commands)
+if (process.env.NODE_ENV != 'production') {
+  var m = menu('vk-bot> ', commands)  
+}
+
+
 
 
 
