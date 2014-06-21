@@ -1,6 +1,8 @@
 var request = require('request')
 var Q = require('q')
 
+var textCase = require('./textcase')
+
 var phrases = [
   {
     pattern: /как дела/i,

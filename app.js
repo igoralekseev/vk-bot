@@ -4,7 +4,6 @@ var fs = require('fs')
 var url = require('url')
 
 var menu = require('./menu')
-var textCase = require('./textcase')
 var VK = require('./vk')
 
 var _ = require('lodash')
