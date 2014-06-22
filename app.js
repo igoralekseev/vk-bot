@@ -205,6 +205,11 @@ var knownCommands = _(phrases).pluck('pattern').map(function(i) {
 
 vk.on('done:messages.get', function(data) {
   if (data.error) {
+
+    if (data.error.error_code === 5) {
+      commands.auth()
+    }
+
     if (data.error.redirect_uri) {
       browser.visit(data.error.redirect_uri, function () {
           !production && console.log('redirect', browser.location.href)
@@ -212,7 +217,7 @@ vk.on('done:messages.get', function(data) {
       })
     }
 
-    return console.log(data.error)
+    return console.log('ERROR messages.get :', data.error)
   }
 
 
