@@ -63,7 +63,7 @@ var VK = function(_options) {
         return false
       }
         
-      if (vk.token.expires < Date.now()) {
+      if (self.token.expires < Date.now()) {
         console.log('ERROR: token expired!')
         return false
       }
@@ -108,12 +108,13 @@ var VK = function(_options) {
 
   var lastUpdateToken = 0
   var pageLoadTimeout = 15 * 1000
-
+  
   self.updateToken = function (callback) {
     if (Date.now() - lastUpdateToken < 60 * 1000) {
       return
     }
 
+    var result = null
 
     var _url = self.authUrl(self.options.scope)
 
@@ -134,6 +135,7 @@ var VK = function(_options) {
           !production && console.log("phantom page new URL: "+url)
 
           if (url.indexOf('access_token') > -1) {
+            result = true
             !production && console.log('we got token')
             self.setToken(self.tokenFromUrl(url))
             callback(self.token)
@@ -165,6 +167,13 @@ var VK = function(_options) {
               !production && console.log('phantom page script end')
               // !production && page.render('page.png');
               
+              setTimeout(function () {
+                if (!result) {
+                  console.log('ERROR: we cannot get token')
+                  ph.exit();
+                }
+              }, pageLoadTimeout)
+
             }, auth)
 
           }, pageLoadTimeout)
