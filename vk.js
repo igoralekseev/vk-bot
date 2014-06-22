@@ -3,6 +3,7 @@ var request = require('request')
 var _ = require('lodash')
 var util = require('util')
 var EventEmitter = require('events').EventEmitter
+var phantom = require('phantom')
 
 
 url.extend = function(url1, url2) {
@@ -15,43 +16,6 @@ url.extend = function(url1, url2) {
 
 var production = (process.env.NODE_ENV === 'production')
 
-
-
-
-
-// var setToken = function (t, setVk) {
-//   if (!t.expires) {
-//     t.expires = Date.now() + 20 * 60 * 60 * 1000
-//   }
-
-//   token = t
-//   if (setVk) vk.setToken({ token: token.value });
-//   fs.writeFile(tokenFile, JSON.stringify(token), function (err) {
-//     if (err) { console.log('ERROR: token not saved', err) }
-//   })
-// }
-
-  
-
-var authFromUrl = function (resultUrl) {
-    if (!resultUrl.match(/access_token=/)) return console.log('auth href:', resultUrl)
-
-    result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
-      return i.split('=')
-    }))
-
-    console.log('auth result:', result)
-
-    var data = { value: result.access_token }
-
-    if (result.expires_in) {
-      data.expires = Date.now() + (parseInt(result.expires_in) - 500) * 1000
-    } else if (token.expires) {
-      data.expires = token.expires
-    } 
-
-    setToken(data, true)
-}
 
 
 
@@ -82,6 +46,17 @@ var VK = function(_options) {
     })
   }
 
+
+  self.tokenFromUrl = function (resultUrl) {
+    if (!resultUrl.match(/access_token=/)) return console.log('auth href:', resultUrl)
+
+    result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
+      return i.split('=')
+    }))
+
+    return result
+  }
+
   
 
   self.request = function(_method, _params) { 
@@ -105,12 +80,87 @@ var VK = function(_options) {
 
 
   self.setToken = function (_param) {
-    self.token = _param.token 
+    if (_param.expires_in) {
+      _param.expires = Date.now() + (parseInt(result.expires_in) - 500) * 1000
+      delete _param.expires_in
+    }
+
+    if (!_param.expires) {
+      _param.expires = Date.now() + 20 * 60 * 60 * 1000
+    }
+
+    self.token = _param.token
   }
 
 
-  self.updateToken = function (rights, callback) {
-    
+  var lastUpdateToken = 0
+  var pageLoadTimeout = 15 * 1000
+
+  self.updateToken = function (callback) {
+    if (Date.now() - lastUpdateToken < 60 * 1000) {
+      return
+    }
+
+
+    var _url = self.authUrl(self.options.scope)
+
+    var auth = {
+      login: self.options.login,
+      password: self.options.password
+    }
+
+    phantom.create('--load-images=no', '--proxy=' + self.options.proxy.split('//')[1], function (ph) {
+      !production && console.log('phantom create')
+
+
+    // phantom.create(function (ph) {
+      ph.createPage(function (page) {
+        !production && console.log('phantom page create')
+
+        page.set('onUrlChanged', function(url) {
+          !production && console.log("phantom page new URL: "+url)
+
+          if (url.indexOf('access_token') > -1) {
+            !production && console.log('we got token')
+            self.setToken(self.tokenFromUrl(url))
+            callback(self.token)
+            ph.exit(); 
+          }
+        })
+
+        page.open(_url, function (status) {
+          // if (status === 'success') 
+          !production && console.log('phantom page opened')
+
+          setTimeout(function () {
+            !production && console.log('phantom page load timeout')        
+
+            page.evaluate(function (auth) { 
+              
+              var login = document.querySelector('input[name="email"]')
+              if (login) login.value = auth.login
+          
+              var pass = document.querySelector('input[name="pass"]')
+              if (pass) pass.value = auth.password
+
+              var form = document.querySelector('form')
+              if (form) form.submit() 
+              
+              return { }
+            }, function (result) {
+
+              !production && console.log('phantom page script end')
+              // !production && page.render('page.png');
+              
+            }, auth)
+
+          }, pageLoadTimeout)
+        })
+      })
+    })
+
+
+
   }
 }
 

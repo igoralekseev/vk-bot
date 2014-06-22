@@ -8,6 +8,7 @@ var VK = require('./vk')
 
 
 var Q = require('q')
+var _ = require('lodash')
 
 
 
@@ -28,6 +29,7 @@ var vk = new VK({
   // mode: 'oauth'
   login: auth.login,
   password: auth.password,
+  scrope: 'messages,photos',
 
   proxy: options.proxy
 });
@@ -69,7 +71,7 @@ var commands = {
 
 
   auth: function () {
-    vk.updateToken('messages,photos', function (token) {
+    vk.updateToken(function (token) {
       fs.writeFile(tokenFile, JSON.stringify(token), function (err) {
         if (err) { console.log('ERROR: token not saved', err) }
       })
@@ -92,15 +94,15 @@ var commands = {
 
   status: function () {
     console.log('VK_APP_ID:', vk.options.appID)
-    console.log('token:', token.value)
-    console.log('token expires:', new Date(token.expires))
+    console.log('token:', vk.token && vk.token.value)
+    console.log('token expires:', vk.token && new Date(vk.token.expires))
     console.log('listening:', !!listening)
   },
 
   listen: function () {
     if (!listening) {
-      if (!token) return console.log('ERROR: no token!')
-      if (token.expires < Date.now()) commands.auth()
+      if (!vk.token) return console.log('ERROR: no token!')
+      if (vk.token.expires < Date.now()) commands.auth()
 
 
       console.log('listening...\n')
@@ -142,13 +144,6 @@ vk.on('done:messages.get', function(data) {
     if (data.error.error_code === 5) {
       commands.auth()
     }
-
-    // if (data.error.redirect_uri) {
-    //   browser.visit(data.error.redirect_uri, function () {
-    //       !production && console.log('redirect', browser.location.href)
-    //       authFromUrl(browser.location.href)
-    //   })
-    // }
 
     return console.log('ERROR messages.get :', data.error)
   }
