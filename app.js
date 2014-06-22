@@ -6,99 +6,60 @@ var url = require('url')
 var menu = require('./menu')
 var VK = require('./vk')
 
-var _ = require('lodash')
+
 var Q = require('q')
-var Browser = require("zombie");
+
 
 
 var production = (process.env.NODE_ENV === 'production')
 
 console.log('vk-bot> initializing...', 'NODE_ENV:', process.env.NODE_ENV)
 
+optionsFile = __dirname + '/options.json'
+var options = JSON.parse(fs.readFileSync(optionsFile).toString())
 
-
-var options = JSON.parse(fs.readFileSync(__dirname + '/options.json').toString())
+authFile = __dirname + '/auth.json'
+var auth = JSON.parse(fs.readFileSync(authFile).toString())
 
 
 var vk = new VK({
   appID: options.vk_app_id,
   // appSecret: options.vk_app_secret,
   // mode: 'oauth'
+  login: auth.login,
+  password: auth.password,
+
   proxy: options.proxy
 });
 
-var browser = new Browser({ 
-  proxy: options.proxy 
-})
-
 
 var tokenFile = __dirname + '/token.json'
-var token = null 
-
-// vk.on('tokenByCodeReady', function() {
-    // console.log('token ready');
-    // setToken(vk.token)
-// });
-
-// vk.on('tokenByCodeNotReady', function(_error) {
-    // console.log('token error', _error)
-// });
-
 fs.readFile(tokenFile, function (err, data) {
   if (err) {
     console.log('ERROR: no token file, need to authorize')
   } else {
-    setToken(JSON.parse(data.toString()), true)
+    vk.setToken(JSON.parse(data.toString()))
   }
 });
 
 
-var setToken = function (t, setVk) {
-  if (!t.expires) {
-    t.expires = Date.now() + 20 * 60 * 60 * 1000
-  }
 
-  token = t
-  if (setVk) vk.setToken({ token: token.value });
-  fs.writeFile(tokenFile, JSON.stringify(token), function (err) {
-    if (err) { console.log('ERROR: token not saved', err) }
-  })
-}
 
-  
+
+
 
 
 var listening = null;
 var last_message_id = null;
 
-var authFile = __dirname + '/auth.json'
-var authFromUrl = function (resultUrl) {
-    if (!resultUrl.match(/access_token=/)) return console.log('auth href:', resultUrl)
 
-    result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
-      return i.split('=')
-    }))
 
-    console.log('auth result:', result)
-
-    var data = { value: result.access_token }
-
-    if (result.expires_in) {
-      data.expires = new Date(Date.now() + (parseInt() - 5) * 1000).getTime()
-    } else if (token.expires) {
-      data.expires = token.expires
-    } 
-
-    setToken(data, true)
-}
 
 
 var commands = {
   auth_old: function () {
     
-    
     var _url = vk.authUrl('messages,photos')
-
     // exec('open ' + _url)
     exec('echo "'+ _url +'" | pbcopy' )
     console.log('Auth url:\n')
@@ -108,32 +69,11 @@ var commands = {
 
 
   auth: function () {
-    
-    var _url = vk.authUrl('messages,photos')
-
-    try {
-      var auth = JSON.parse(fs.readFileSync(authFile).toString())
-    } catch (e) {
-      return console.log('auth error:', e)
-    }
-    
-
-    browser.visit(_url, function () {
-
-      try { 
-        browser.
-          fill("email", auth.login).
-          fill("pass", auth.password).
-          pressButton('input[type="submit"]', function() {
-            authFromUrl(browser.location.href)
-          })
-      } catch (e) {
-        console.log('ZOMBIE ERROR', e)
-      }
-
-
-    });
-
+    vk.updateToken('messages,photos', function (token) {
+      fs.writeFile(tokenFile, JSON.stringify(token), function (err) {
+        if (err) { console.log('ERROR: token not saved', err) }
+      })
+    })
   },
 
   // "code (.*)": function (match) {
@@ -141,18 +81,10 @@ var commands = {
   // },
 
   "token (.*)": function (match) {
-    setToken({ 
+    vk.setToken({ 
       value: match[1]
     }, true);
   },
-
-
-  // "browser ([^ ]*) ?(.*)?": function (match) {
-    // var command = match[1]
-    // var params = match[2]
-    //
-    // browser
-  // },
 
   // evl: function () {
     // eval js in bot context?
@@ -160,7 +92,8 @@ var commands = {
 
   status: function () {
     console.log('VK_APP_ID:', vk.options.appID)
-    console.log('token:', token)
+    console.log('token:', token.value)
+    console.log('token expires:', new Date(token.expires))
     console.log('listening:', !!listening)
   },
 
@@ -210,12 +143,12 @@ vk.on('done:messages.get', function(data) {
       commands.auth()
     }
 
-    if (data.error.redirect_uri) {
-      browser.visit(data.error.redirect_uri, function () {
-          !production && console.log('redirect', browser.location.href)
-          authFromUrl(browser.location.href)
-      })
-    }
+    // if (data.error.redirect_uri) {
+    //   browser.visit(data.error.redirect_uri, function () {
+    //       !production && console.log('redirect', browser.location.href)
+    //       authFromUrl(browser.location.href)
+    //   })
+    // }
 
     return console.log('ERROR messages.get :', data.error)
   }
@@ -228,8 +161,6 @@ vk.on('done:messages.get', function(data) {
   messages.forEach(function(msg) {
     last_message_id = msg.id
     if (!msg.read_state) {
-      
-      // console.log(msg)
 
       var unknown = true
       var isChat = msg.chat_id !== undefined
@@ -280,23 +211,20 @@ vk.on('done:messages.send', function(data) {
 })
 
 
-
-
 setTimeout(function() {
-  console.log('ready\n')
-  
-  if (token) {
-    commands.listen()
-  }
+   console.log('ready\n')
+   
+   commands.status()  
+   console.log('\n')
+ 
+   var start_command = commands[process.argv[2]]
+   if (start_command) start_command()
 
-  commands.status()  
-  console.log('\n')
-
-}, 500)
+ }, 500)
 
 
 if (!production) {
-  var m = menu('vk-bot> ', commands)  
+  var m = menu('vk-bot> ', commands)
 }
 
 

@@ -16,10 +16,44 @@ url.extend = function(url1, url2) {
 var production = (process.env.NODE_ENV === 'production')
 
 
-var last_req_mode = true;
-var last_req_mode = false;
-var last_req_time = 30 * 1000;
-var last_req = {};
+
+
+
+// var setToken = function (t, setVk) {
+//   if (!t.expires) {
+//     t.expires = Date.now() + 20 * 60 * 60 * 1000
+//   }
+
+//   token = t
+//   if (setVk) vk.setToken({ token: token.value });
+//   fs.writeFile(tokenFile, JSON.stringify(token), function (err) {
+//     if (err) { console.log('ERROR: token not saved', err) }
+//   })
+// }
+
+  
+
+var authFromUrl = function (resultUrl) {
+    if (!resultUrl.match(/access_token=/)) return console.log('auth href:', resultUrl)
+
+    result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
+      return i.split('=')
+    }))
+
+    console.log('auth result:', result)
+
+    var data = { value: result.access_token }
+
+    if (result.expires_in) {
+      data.expires = Date.now() + (parseInt(result.expires_in) - 500) * 1000
+    } else if (token.expires) {
+      data.expires = token.expires
+    } 
+
+    setToken(data, true)
+}
+
+
 
 var VK = function(_options) {
   var self = this
@@ -51,11 +85,6 @@ var VK = function(_options) {
   
 
   self.request = function(_method, _params) { 
-    if (last_req_mode && last_req[_method] && Date.now() - last_req[_method] < last_req_time) {
-      !production && console.log('vk request REJECTED[single_req_mode]:', _method, _params)
-      return
-    }
-
     var url = self._apiUrl + _method  + '?' + 'access_token=' + self.token
 
     for (var key in _params) {
@@ -64,16 +93,7 @@ var VK = function(_options) {
 
     !production && console.log('vk request:', _method, _params)
 
-    if (last_req_mode) {
-      last_req[_method] = Date.now()
-    }
-
     request({ url: url, json: true }, function (error, response, body) {
-
-      if (last_req_mode) {
-        last_req[_method] = false
-      }
-
       if (error) {
         console.log('vk error:', _method, body, error);
       } else {
@@ -88,7 +108,13 @@ var VK = function(_options) {
     self.token = _param.token 
   }
 
+
+  self.updateToken = function (rights, callback) {
+    
+  }
 }
+
+
 
 
 util.inherits(VK, EventEmitter);

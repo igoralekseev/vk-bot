@@ -2,4 +2,7 @@ token.json
 auth.json
 options.json
 
+page.png
+.DS_Store
+
 /node_modules
