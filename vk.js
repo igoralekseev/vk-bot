@@ -135,8 +135,8 @@ var VK = function(_options) {
     // phantom.create(function (ph) {
       ph.createPage(function (page) {
         !production && console.log('phantom page create')
-
-        page.settings.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_4 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B350 Safari/8536.25';
+        
+        page.set('settings.userAgent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_4 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B350 Safari/8536.25')
         page.set('onUrlChanged', function(url) {
           !production && console.log("phantom page new URL: "+url)
 

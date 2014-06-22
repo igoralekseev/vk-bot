@@ -29,7 +29,7 @@ var vk = new VK({
   // mode: 'oauth'
   login: auth.login,
   password: auth.password,
-  scrope: 'messages,photos',
+  scope: 'messages,photos',
 
   proxy: options.proxy
 });
