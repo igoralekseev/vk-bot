@@ -82,7 +82,8 @@ phantom.create('--load-images=no', '--proxy=' + options.proxy.split('//')[1], fu
       console.log("phantom page new URL: "+url)
 
       if (url.indexOf('access_token') > -1) {
-        authFromUrl(url)
+        // authFromUrl(url)
+        console.log('we got token')
         ph.exit(); 
       }
     })
