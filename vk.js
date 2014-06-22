@@ -60,7 +60,7 @@ var VK = function(_options) {
   
 
   self.request = function(_method, _params) { 
-    var url = self._apiUrl + _method  + '?' + 'access_token=' + self.token
+    var url = self._apiUrl + _method  + '?' + 'access_token=' + self.token.value
 
     for (var key in _params) {
       url += ('&' + key + '=' + encodeURIComponent(_params[key]))
