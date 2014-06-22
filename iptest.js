@@ -2,7 +2,7 @@ var fs = require('fs')
 var request = require('request')
 var http = require('http');
 var https = require('https');
-
+var phantom = require('phantom')
 
 
 var options = JSON.parse(fs.readFileSync('options.json').toString())
@@ -118,4 +118,36 @@ test_vk2('users.get', { v: '5.21' }, token.value, function () {
 });
 
 
+
+phantom.create('--load-images=no', '--proxy=' + options.proxy.split('//')[1], function (ph) {
+  console.log('phantom create')
+
+
+// phantom.create(function (ph) {
+  ph.createPage(function (page) {
+    console.log('phantom page create')
+
+    
+    page.open(ip, function (status) {
+      // if (status === 'success') 
+      console.log('phantom page opened')
+
+      setTimeout(function () {
+        console.log('phantom page load timeout')        
+
+        page.evaluate(function () { 
+          
+          return document.querySelector('body').innerHTML
+        }, function (result) {
+
+          console.log('phantom page script end', result)
+          // page.render('page.png');
+          ph.exit(); 
+          
+        })
+
+      }, 1 * 1000)
+    })
+  })
+})
 
