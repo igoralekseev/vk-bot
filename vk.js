@@ -50,7 +50,7 @@ var VK = function(_options) {
   self.tokenFromUrl = function (resultUrl) {
     if (!resultUrl.match(/access_token=/)) return console.log('auth href:', resultUrl)
 
-    result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
+    var result = _.object(resultUrl.split('#')[1].split('&').map(function (i) {
       return i.split('=')
     }))
 
@@ -102,6 +102,11 @@ var VK = function(_options) {
       _param.expires = Date.now() + 20 * 60 * 60 * 1000
     }
 
+    if (_param.access_token) {
+      _param.value = _param.access_token
+      delete _param.access_token
+    }
+
     self.token = _param
   }
 
@@ -136,9 +141,9 @@ var VK = function(_options) {
 
           if (url.indexOf('access_token') > -1) {
             result = true
-            !production && console.log('we got token')
             self.setToken(self.tokenFromUrl(url))
             callback(self.token)
+            !production && console.log('we got token', self.token)
             ph.exit(); 
           }
         })

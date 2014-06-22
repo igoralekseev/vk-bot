@@ -104,7 +104,7 @@ var commands = {
       if (!vk.checkToken()) {
         return commands.auth()
       }
-      
+
       console.log('listening...\n')
       listening = setInterval(function () {
         
