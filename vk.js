@@ -81,7 +81,7 @@ var VK = function(_options) {
 
   self.setToken = function (_param) {
     if (_param.expires_in) {
-      _param.expires = Date.now() + (parseInt(result.expires_in) - 500) * 1000
+      _param.expires = Date.now() + (parseInt(_param.expires_in) - 500) * 1000
       delete _param.expires_in
     }
 
@@ -89,7 +89,7 @@ var VK = function(_options) {
       _param.expires = Date.now() + 20 * 60 * 60 * 1000
     }
 
-    self.token = _param.token
+    self.token = _param
   }
 
 
