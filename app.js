@@ -101,10 +101,10 @@ var commands = {
 
   listen: function () {
     if (!listening) {
-      if (!vk.token) return console.log('ERROR: no token!')
-      if (vk.token.expires < Date.now()) commands.auth()
-
-
+      if (!vk.checkToken()) {
+        return commands.auth()
+      }
+      
       console.log('listening...\n')
       listening = setInterval(function () {
         

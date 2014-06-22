@@ -57,6 +57,19 @@ var VK = function(_options) {
     return result
   }
 
+  self.checkToken = function () {
+      if (!self.token) {
+        console.log('ERROR: no token!')
+        return false
+      }
+        
+      if (vk.token.expires < Date.now()) {
+        console.log('ERROR: token expired!')
+        return false
+      }
+
+      return true
+  }
   
 
   self.request = function(_method, _params) { 
