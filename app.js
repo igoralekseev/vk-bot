@@ -71,7 +71,7 @@ var setToken = function (t, setVk) {
 var listening = null;
 var last_message_id = null;
 
-var authFile = 'auth.json'
+var authFile = __dirname + '/auth.json'
 var authFromUrl = function (resultUrl) {
     if (!resultUrl.match(/access_token=/)) return console.log('auth href:', resultUrl)
 
