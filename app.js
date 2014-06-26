@@ -116,7 +116,7 @@ var commands = {
 
         vk.request('messages.get', options);
         
-      }, 10 * 1000)
+      }, 60 * 1000)
     } else {
       clearInterval(listening);
       listening = null;  

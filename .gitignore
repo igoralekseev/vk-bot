@@ -1,6 +1,7 @@
 token.json
 auth.json
 options.json
+proxy_list.txt
 
 page.png
 .DS_Store
