@@ -194,7 +194,7 @@ vk.on('done:messages.get', function(data) {
       if (unknown && !isChat) {
         vk.request('messages.send', { 
           user_id: msg.user_id, 
-          message: 'Я не понял. Я робот. Я понимаю только: ' + knownCommands + '. https://vk.com/wall84251988_15 [' + Date.now().toString().substr(-3,3) + ']'
+          message: 'Я не понял. Я робот. Я понимаю только: ' + knownCommands + '. http://vk.com/wall258131347_2 [' + Date.now().toString().substr(-3,3) + ']'
         })
       }
     }
