@@ -136,9 +136,7 @@ var knownCommands = _(phrases).pluck('pattern').map(function(i) {
 }).join(', ')
 
 
-
-
-vk.on('done:messages.get', function(data) {
+var onMessages = function(data) {
   if (data.error) {
 
     if (data.error.error_code === 5) {
@@ -154,7 +152,8 @@ vk.on('done:messages.get', function(data) {
   if (messages.length) !production && console.log('\nmessages.get ', messages.length)
 
   messages.forEach(function(msg) {
-    last_message_id = msg.id
+    if (msg.message) msg = msg.message
+    if (msg.id > last_message_id) last_message_id = msg.id
     if (!msg.read_state) {
 
       var unknown = true
@@ -199,9 +198,14 @@ vk.on('done:messages.get', function(data) {
       }
     }
   });
-});
+}
+
+
+vk.on('done:messages.get', onMessages);
+vk.on('done:messages.getDialogs', onMessages);
 
 vk.on('done:messages.send', function(data) {
+  vk.request('done:messages.getDialogs',  { count: 30, unread: 1, v: '5.21' });
   !production && console.log('done:messages.send', data)
 })
 
