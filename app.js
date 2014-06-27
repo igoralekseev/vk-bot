@@ -204,8 +204,12 @@ var onMessages = function(data) {
 vk.on('done:messages.get', onMessages);
 vk.on('done:messages.getDialogs', onMessages);
 
+var getLostMessages = _.debounce(function () {
+  vk.request('messages.getDialogs',  { count: 30, unread: 1, v: '5.21' }); 
+}, 3 * 1000)
+
 vk.on('done:messages.send', function(data) {
-  vk.request('messages.getDialogs',  { count: 30, unread: 1, v: '5.21' });
+  getLostMessages()
   !production && console.log('done:messages.send', data)
 })
 
