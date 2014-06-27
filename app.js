@@ -205,7 +205,7 @@ vk.on('done:messages.get', onMessages);
 vk.on('done:messages.getDialogs', onMessages);
 
 vk.on('done:messages.send', function(data) {
-  vk.request('done:messages.getDialogs',  { count: 30, unread: 1, v: '5.21' });
+  vk.request('messages.getDialogs',  { count: 30, unread: 1, v: '5.21' });
   !production && console.log('done:messages.send', data)
 })
 
